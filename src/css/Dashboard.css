@@ -1,0 +1,66 @@
+/* Dashboard.css */
+
+body {
+  font-family: 'Arial', sans-serif;
+  background-color: #f4f4f4;
+  margin: 0;
+  padding: 0;
+  overflow-x: hidden; /* Hide horizontal scrollbar */
+}
+
+.container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 80vh;
+  margin-top: -10px;
+  width: 100%;
+  max-width: 1200px;
+  margin: 0 auto;/* Increase the negative margin to move the container up further */
+}
+
+.col-md-6 {
+  background-color: #fff;
+  padding: 70px; /* Adjusted padding for a more balanced appearance */
+  border-radius: 8px;
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+  width: 100%;
+  max-width: 1200px;
+  box-sizing: border-box;
+}
+
+h2 {
+  color: #333;
+ /* font-size: 30px;*/
+  font-size: 2rem;
+}
+
+p {
+  color: #555;
+  font-size: 1.5rem;
+}
+.container .btn {
+  font-size: 1.2rem;
+}
+.btn-primary,
+.btn-secondary {
+  background-color: #007bff;
+  color: #fff;
+  text-decoration: none;
+  display: block;
+  text-align: center;
+  margin-top: 20px;
+  padding: 15px;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+}
+
+.btn-secondary {
+  background-color: #6c757d;
+}
+
+.btn-primary:hover,
+.btn-secondary:hover {
+  opacity: 0.9;
+}

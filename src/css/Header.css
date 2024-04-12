@@ -1,0 +1,45 @@
+/* Header.css */
+
+.head {
+    background-color: rgb(27, 23, 23); /* Choose a color for the header background */
+    padding: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    width: 100%;
+  }
+  
+  .college-logo2 {
+    height: 70px; /* Adjust the height of your logo as needed */
+    margin-right: 10px;
+  }
+  
+  .head h1 {
+    color: #fff; /* Choose a color for the text */
+    margin: 0;
+    font-size: 20px; /* Adjust the font size as needed */
+    text-align: center; /* Center the text */
+    flex-grow: 1; /* Allow the text to grow and take up available space */
+  }
+  
+  .nav-class {
+    display: flex;
+    align-items: center;
+    display: block;
+    color: #fff; /* Choose a color for the link text */
+    text-align: center;
+    text-decoration: none;
+    margin-left: 10px; /* Adjust spacing between icons */
+    margin-right: 10px; /* Adjust spacing between icons */
+    font-size: 24px;
+    
+}
+.head .nav-class .my-profile-link {
+    padding-right: 15px;
+    color: #fff; /* Set the text color to white */
+  }
+  /* Additional styles for the navigation links, e.g., hover effects */
+  .nav-class Link:hover {
+    text-decoration: underline;
+  }
+  

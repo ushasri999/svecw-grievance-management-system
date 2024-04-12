@@ -1,0 +1,101 @@
+/* Add these styles to match the interface with Home.js */
+.wrapper2 {
+    width: 415px;
+    margin: 20px auto;
+    padding: 30px;
+    background: #fff;
+    border-radius: 15px;
+    box-shadow: 0px 15px 20px rgba(0, 0, 0, 0.1);
+    transition: margin-left 0.6s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+    margin-top: 120px;
+  }
+  
+  .form-container {
+    width: 100%;
+    overflow: hidden;
+  }
+  
+  .form-inner {
+    display: flex;
+    width: 200%;
+  }
+  
+  .forgot-password {
+    width: 50%;
+    transition: all 0.6s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+  }
+  
+  .forgot-password .field input {
+    height: 100%;
+    width: 100%;
+    outline: none;
+    padding-left: 15px;
+    border-radius: 15px;
+    border: 1px solid lightgrey;
+    border-bottom-width: 2px;
+    font-size: 17px;
+    transition: all 0.3s ease;
+  }
+  
+  .forgot-password .field input:focus {
+    border-color: #1a75ff;
+  }
+  
+  .forgot-password .field input::placeholder {
+    color: #999;
+    transition: all 0.3s ease;
+  }
+  
+  .forgot-password .btn {
+    height: 50px;
+    width: 100%;
+    border-radius: 15px;
+    position: relative;
+    overflow: hidden;
+  }
+  
+  .forgot-password .btn .btn-layer {
+    height: 100%;
+    width: 300%;
+    position: absolute;
+    left: -100%;
+    background: -webkit-linear-gradient(right, #003366, #004080, #0059b3, #0073e6);
+    border-radius: 15px;
+    transition: all 0.4s ease;
+  }
+  
+  .forgot-password .btn:hover .btn-layer {
+    left: 0;
+  }
+  
+  .forgot-password input[type="submit"] {
+    height: 100%;
+    width: 100%;
+    z-index: 1;
+    position: relative;
+    background: none;
+    border: none;
+    color: #fff;
+    padding-left: 0;
+    border-radius: 15px;
+    font-size: 20px;
+    font-weight: 500;
+    cursor: pointer;
+  }
+  .page  {
+    width: 100%;
+}
+  
+  .pass-link {
+    margin-top: 5px;
+  }
+  
+  .pass-link a {
+    color: #1a75ff;
+    text-decoration: none;
+  }
+  
+  .pass-link a:hover {
+    text-decoration: underline;
+  }
+  

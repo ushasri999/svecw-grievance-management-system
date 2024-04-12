@@ -1,0 +1,63 @@
+const MessComplaint = require("../models/messComplaintModel");
+const Student = require("../models/studentModel");
+const { jwtDecoder } = require("../utils/jwtToken");
+
+//clared
+exports.addMessComplaint = async (req, res) => {
+    try{
+        console.log('came to add messscomplaint')
+        const {comment, is_satisfied} = req.body;
+        console.log('req = ', req)
+        console.log('boby = ', req.body)
+        console.log('comment = ', comment)
+        console.log('is_satisfied = ', is_satisfied)
+        const token = req.headers.authorization;
+        console.log(token);
+        const decodedToken = await jwtDecoder(token);
+        console.log('decodedToken = ', decodedToken);
+
+        const student = await Student.findOne({user_id: decodedToken.user.user_id})
+        console.log('student = ', student);
+
+        const newMessComplaint = new MessComplaint({
+            comment,
+            is_satisfied, 
+            student_id: student._id
+        });
+
+        await newMessComplaint.save();
+
+        res.json(newMessComplaint);
+    }
+    catch(err){
+        console.error(err);
+        res.json({status: 'error', message: 'Server error'});
+    }
+};
+
+exports.getAverageSatisfaction = async (req, res) => {
+    try {
+      // Find all documents in the collection
+      console.log('came to know average satisfaction')
+      const allComplaints = await MessComplaint.find();
+  
+      // Count the number of satisfied and unsatisfied complaints
+      let satisfiedCount = 0;
+      let totalCount = 0;
+  
+      allComplaints.forEach(complaint => {
+        if (complaint.is_satisfied) {
+          satisfiedCount++;
+        }
+        totalCount++;
+      });
+  
+      // Calculate the average satisfaction level
+      const averageSatisfaction = totalCount > 0 ? (satisfiedCount / totalCount) * 100 : 0;
+  
+      res.json( averageSatisfaction );
+    } catch (error) {
+      console.error("Error calculating average satisfaction:", error);
+      res.json({status: 'error', message: "Server error" });
+    }
+  };

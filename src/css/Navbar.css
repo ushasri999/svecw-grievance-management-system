@@ -1,0 +1,32 @@
+/* Add this style to your CSS file (e.g., Home.css or ForgotPassword.css) */
+.page-header {
+    display: flex;
+    align-items: center;
+    text-align: center;
+    padding: 20px;
+    color: #003366;
+    width: 100%;
+    box-sizing: border-box;
+    
+    position: fixed;
+    top: 0;
+    left: 0;
+  }
+  
+  /* Additional styles for college-logo and h1 can be adjusted as needed */
+  .college-logo {
+    width: 100px;
+    height: 90px;
+    margin-right: 20px;
+    margin-left: -10px;
+    margin-top: -5px;
+    margin-bottom: -10px;
+    border-radius: 15px;
+  }
+  
+  .page-header h1 {
+    font-size: 40px;
+    font-weight: 600;
+    margin-bottom: 0px;
+  }
+  
