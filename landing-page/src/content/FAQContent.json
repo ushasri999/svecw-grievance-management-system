@@ -1,0 +1,15 @@
+{
+    "title": "Frequently Asked Questions",
+    "questions": [
+      {
+        "question": "What is the purpose of your project?",
+        "answer": "The purpose of our project is..."
+      },
+      {
+        "question": "How can I get started?",
+        "answer": "To get started, you can..."
+      }
+    ],
+    "icon": "graphs.svg"
+  }
+  
