@@ -16,6 +16,7 @@ module.exports = {
     './src/components/WhichGreivance.jsx',
     './src/components/MessComplaint.jsx',
     './src/components/Home.jsx',
+    './src/components/Test.jsx',
     './public/index.html',],
   theme: {
     extend: {
