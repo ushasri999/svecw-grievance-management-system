@@ -25,7 +25,6 @@ module.exports = {
         secondary: '#2ecc71',
         terinary : '#435585',
         darkgreen: '#0ae90a',
-        blue: '#0000ff',
         orange: '#f9a100',
         gray :{
           '200' : '#232931'
