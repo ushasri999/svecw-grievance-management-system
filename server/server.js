@@ -10,6 +10,8 @@ const complaintRoutes = require('./routes/complaintRoutes')
 const studentRoutes = require('./routes/studentRoutes')
 const blockRoutes = require('./routes/blockRoutes')
 const messComplaintRoutes = require('./routes/messComplaintRoutes')
+const contactRoutes = require('./routes/contactRoutes')
+
 
 const cors = require('cors')
 app.use(cors());
@@ -37,3 +39,4 @@ app.use('/', complaintRoutes);
 app.use('/', studentRoutes);
 app.use('/', blockRoutes)
 app.use('/', messComplaintRoutes)
+app.use('/', contactRoutes)

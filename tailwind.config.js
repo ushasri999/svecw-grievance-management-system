@@ -15,6 +15,7 @@ module.exports = {
     './src/components/AdminPage2.jsx',
     './src/components/WhichGreivance.jsx',
     './src/components/MessComplaint.jsx',
+    './src/components/Contacts.jsx',
     './src/components/Home.jsx',
     './src/components/Test.jsx',
     './public/index.html',],
