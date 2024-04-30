@@ -1,6 +1,5 @@
 import React, { useState } from "react";
 import { GetAuthHeader } from "../utils/Headers";
-import "../css/RaiseComplaint.css"; // Import the CSS file for styling
 import Header from "./Header";
 import { useNavigate } from "react-router-dom";
 
@@ -29,7 +28,7 @@ const RaiseComplaint = () => {
         body: JSON.stringify(body),
       });
 
-      alert("Thank you")
+      alert("Thank you");
       navigate("/home?currentPage=Dashboard");
     } catch (err) {
       console.error(err.message);
@@ -37,43 +36,47 @@ const RaiseComplaint = () => {
   };
 
   return (
-    <div className="raise-container">
-      {/* <Header/> */}
-      <div className="row justify-content-center">
-    <div className="complaint-container">
-      <h3 className="form-heading">Submit Your Grievance</h3>
-      <div className="complaint-form">
-        <div className="complaint-fields">
-          <input
-            id="name"
-            type="text"
-            className="form-input"
-            placeholder="Enter Complaint name"
-            onChange={(e) => setName(e.target.value)}
-          />
-          <input
-            id="email"
-            type="text"
-            className="form-input"
-            placeholder="Enter your Room No."
-            onChange={(e) => setRoom(e.target.value)}
-          />
-          <label className="form-label">Tell us about your grievance</label>
-          <textarea
-            id="about"
-            className="form-textarea"
-            onChange={(e) => setDescription(e.target.value)}
-          ></textarea>
-          <button
-            className="form-button"
-            onClick={onSubmitForm}
-          >
-            Submit
-          </button>
+    <div className="w-full  bg-cover bg-no-repeat bg-center" style={{backgroundImage: "url('bg.png')"}}>
+      <div className="bg-black bg-opacity-30 min-h-screen flex justify-center items-center">
+        <div className="w-full max-w-md p-8 bg-white  rounded-lg shadow-md">
+          <h3 className="mb-4 text-xl font-semibold text-center">Submit Your Grievance</h3>
+          <form className="space-y-4" onSubmit={onSubmitForm}>
+            <div>
+              <input
+                id="name"
+                type="text"
+                className="w-full px-4 py-2 border rounded-md"
+                placeholder="Enter Complaint name"
+                onChange={(e) => setName(e.target.value)}
+              />
+            </div>
+            <div>
+              <input
+                id="email"
+                type="text"
+                className="w-full px-4 py-2 border rounded-md"
+                placeholder="Enter your Room No."
+                onChange={(e) => setRoom(e.target.value)}
+              />
+            </div>
+            <div>
+              <label className="block mb-1 font-medium">Tell us about your grievance</label>
+              <textarea
+                id="about"
+                className="w-full px-4 py-2 border rounded-md"
+                rows="4"
+                onChange={(e) => setDescription(e.target.value)}
+              ></textarea>
+            </div>
+            <button
+              type="submit"
+              className="w-full px-4 py-2 text-white bg-blue-500 rounded-md hover:bg-blue-600"
+            >
+              Submit
+            </button>
+          </form>
         </div>
       </div>
-    </div>
-    </div>
     </div>
   );
 };

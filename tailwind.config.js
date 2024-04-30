@@ -17,6 +17,7 @@ module.exports = {
     './src/components/MessComplaint.jsx',
     './src/components/Contacts.jsx',
     './src/components/Home.jsx',
+    './src/components/Test.jsx',
     './public/index.html',],
   theme: {
     extend: {
@@ -24,6 +25,8 @@ module.exports = {
         primary: '#3498db',
         secondary: '#2ecc71',
         terinary : '#435585',
+        darkgreen: '#0ae90a',
+        orange: '#f9a100',
         gray :{
           '200' : '#232931'
         },

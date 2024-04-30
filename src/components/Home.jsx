@@ -10,6 +10,8 @@ import RaiseComplaint from "./RaiseComplaint";
 import MyGrievances from "./MyGrievances";
 import WhichGrievance from "./WhichGreivance";
 import MessComplaint from "./MessComplaint";
+import Contacts from "./Contacts";
+
 
 const Home = () => {
   const location = useLocation();
@@ -37,7 +39,7 @@ const Home = () => {
   const menus = [
     { name: "Dashboard", link: "/dashboard", icon: MdOutlineDashboard, margin: true },
     { name: "My Grievances", link: "/mygrievances", icon: MdWorkHistory, margin: true },
-    { name: "Contact", link: "/", icon: RiContactsLine, margin: true },
+    { name: "Contact", link: "/contacts", icon: RiContactsLine, margin: true },
     { name: "Logout", link: "/", icon: FiLogOut, margin: true },
   ];
 
@@ -98,7 +100,7 @@ const Home = () => {
         {currentPage === 'Dashboard' && <Dashboard />}
         {currentPage === 'raiseComplaint' && <RaiseComplaint />}
         {currentPage === 'My Grievances' && <MyGrievances />}
-        {currentPage === 'Contact' && <Dashboard />}
+        {currentPage === 'Contact' && <Contacts />}
         {currentPage === 'Which Grievance' && <WhichGrievance />}
         {currentPage === 'Mess Complaint' && <MessComplaint/>}
         {currentPage === 'Logout' && logout() }

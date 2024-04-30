@@ -3,6 +3,7 @@ const { jwtDecoder } = require("../utils/jwtToken")
 const { ObjectId } = require("mongoose").Types;
 const Complaint = require('../models/complaintModel');
 const Student = require("../models/studentModel");
+const Block = require("../models/blockModel");
 
 exports.decodeUser = async (token) => {
     try{
@@ -120,7 +121,7 @@ exports.putComplaintsById = async (req, res) => {
 
 exports.getAllComplaintsByUser = async (req, res) => {
     try{
-        console.log('we are in getAllComplaintsByUser')
+        // console.log('we are in getAllComplaintsByUser')
         const token = req.headers.authorization;
         if(!token){
             res.status({status: 'error', message: 'Unautorized - Token not provided'});
@@ -128,7 +129,7 @@ exports.getAllComplaintsByUser = async (req, res) => {
         console.log(token);
         
         const decodedToken = jwtDecoder(token);
-        console.log(decodedToken);
+        // console.log(decodedToken);
 
         const {user_id, type} = decodedToken.user;
         console.log("type", type);
@@ -142,7 +143,31 @@ exports.getAllComplaintsByUser = async (req, res) => {
         }
         else if(type == 'warden'){
             const allComplaints = await Complaint.find().sort({created_at: -1});
-            res.json(allComplaints);
+            let ans = [];
+
+            await Promise.all(allComplaints.map(async (complaint) => {
+                const cur = {}
+                
+                // Fetch student and block details using async/await
+                const student = await Student.findOne({_id: complaint.student_id});
+                const block = await Block.findOne({_id: complaint.block_id});
+            
+                // Populate cur object with fetched details
+                cur._id = complaint._id;
+                cur.usn = student ? student.usn : null;
+                cur.complaint_name = complaint.complaint_name;
+                cur.description = complaint.description;
+                cur.block_name = block ? block.block_name : null;
+                cur.room = student ? student.room : null;
+                cur.status = complaint.is_completed;
+            
+                // console.log(cur);
+                ans.push(cur);
+            }));
+
+            console.log("ans = ", ans);
+
+            res.json(ans);
         }
         else{
             res.status(403).json({error: 'Unathorized'});
