@@ -42,7 +42,7 @@ const Header = ({ t }: any) => {
 
     const handleLoginClick = () => {
       // Simulate navigation to login page by scrolling to the top of the page
-      scrollTo("top");
+      window.location.href = 'http://localhost:3006/';
     };
 
     return (

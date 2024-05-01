@@ -6,6 +6,12 @@ import "antd/dist/antd.css";
 import Router from "./router";
 import i18n from "./translation";
 
+// Dynamically create the link element for the manifest file
+const manifestLink = document.createElement("link");
+manifestLink.rel = "manifest";
+manifestLink.href = "/manifest.json";
+document.head.appendChild(manifestLink);
+
 const App = () => (
   <BrowserRouter>
     <I18nextProvider i18n={i18n}>
