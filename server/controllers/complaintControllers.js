@@ -160,6 +160,7 @@ exports.getAllComplaintsByUser = async (req, res) => {
                 cur.block_name = block ? block.block_name : null;
                 cur.room = student ? student.room : null;
                 cur.status = complaint.is_completed;
+                cur.date = complaint.created_at;
             
                 // console.log(cur);
                 ans.push(cur);

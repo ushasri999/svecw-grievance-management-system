@@ -1,33 +1,88 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import { GetAuthHeader } from "../utils/Headers";
 import '../styles/tailwind.css';
 import UpperNavbar from './UpperNavbar';
-import clsx from "clsx";
 
-const formatTimestamp = (timestamp) => {
-  const date = new Date(timestamp); 
-  const options = {
-    year: "numeric",
-    month: "short",
-    day: "numeric",
-    hour: "numeric",
-    minute: "numeric",
-    second: "numeric",
-  };
-  return new Intl.DateTimeFormat("en-US", options).format(date);
-};
+import { DateRange } from 'react-date-range'
 
-const formatTimestamp1 = (timestamp) => {
-  const date = new Date(timestamp); 
-  const options = {
-    year: "numeric",
-    month: "short",
-    day: "numeric",
-  };
-  return new Intl.DateTimeFormat("en-US", options).format(date);
-};
+import format from 'date-fns/format'
+import { addDays } from 'date-fns'
+
+import 'react-date-range/dist/styles.css'
+import 'react-date-range/dist/theme/default.css'
 
 const AdminPage2 = () => {
+  const [calendarFilter, setCalendarFilter] = useState(false);
+  const hostelNames = ["Bhargavi", "Bhuvana", "Neelima", "Nirmala", "Manasa", "Mrudula", "Rohini", "Revathi", "Spoorthi", "Vaidehi", "Gayathri", "Saradha", "Vaishnavi", "Rajeswari"];
+
+  const [filterValue, setFilterValue] = useState('');
+  
+  const handleInputChange = (event) => {
+    setFilterValue(event.target.value);
+  };
+  
+  const filteredHostelNames = hostelNames.filter(name => {
+    // Convert both the filter value and hostel name to lowercase for case-insensitive filtering
+    const lowercaseFilter = filterValue.toLowerCase();
+    const lowercaseName = name.toLowerCase();
+    // Return true if the hostel name includes the filter value
+    return lowercaseName.includes(lowercaseFilter);
+  });
+
+
+  const [selectedHostels, setSelectedHostels] = useState([]);
+  const handleHostelClick = (hostel) => {
+    console.log('adding', hostel)
+    const index = selectedHostels.indexOf(hostel);
+    if (index === -1) {
+      setSelectedHostels([...selectedHostels, hostel]);
+    } else {
+      const updatedHostels = [...selectedHostels];
+      updatedHostels.splice(index, 1);
+      setSelectedHostels(updatedHostels);
+    }
+
+    // toggleHostelMenu();
+  };
+
+  const handleTimelineResetClick = (event) => {
+    event.stopPropagation();
+    setCalendarFilter(false);
+
+    setStartDate(new Date());
+    setEndDate(new Date());
+
+  }
+
+  const [selectedStatus, setSelectedStatus] = useState(null);
+  
+  const handleStatusMenuItemClick = (status) => {
+    console.log('came to set', status)
+
+    if(status == selectedStatus){
+      setSelectedStatus(null)
+    }
+    else{
+      setSelectedStatus(status);
+    }
+    // toggleStatusMenu(); // Close the status menu after selection (optional)
+  };
+  
+  const [statusMenuOpen, setStatusMenuOpen] = useState(false);
+  const toggleStatusMenu = () => {
+    setStatusMenuOpen(!statusMenuOpen);
+  }; 
+
+  const [hostelMenuOpen, setHostelMenuOpen] = useState(false);
+  const toggleHostelMenu = () => {
+    setHostelMenuOpen(!hostelMenuOpen);
+  }; 
+
+  const [calendarMenuOpen, setCalendarMenuOpen] = useState(false);
+  const toggleCalendarMenuOpen = () => {
+    setCalendarMenuOpen(!calendarMenuOpen);
+  }; 
+
   const [curComplaintId, setCurComplaintId] = useState(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
 
@@ -40,7 +95,7 @@ const AdminPage2 = () => {
   };
 
   const [complaints, setComplaints] = useState([]);
-  const [showCompleted, setShowCompleted] = useState(null);
+  // const [showCompleted, setShowCompleted] = useState(null);
 
   const getComplaints = async () => {
     try {
@@ -76,74 +131,418 @@ const AdminPage2 = () => {
       console.error(err.message);
     }
   };
-  
-
-
-//   const handleApproval = async (complaint_id, event) => {
-//     event.preventDefault();  // Prevent default form submission
-
-//     console.log("Handling approval for ID:", complaint_id);
-
-//     try {
-//         const token = localStorage.getItem("token");
-//         const response = await fetch(
-//                 `http://localhost:5000/complaints/${complaint_id}`,
-//                 {
-//                   method: "PUT",
-//                   headers: GetAuthHeader(),
-//                   body: JSON.stringify({ status }),
-//                 }
-//               );
-
-//         const data = await response.json();
-//         console.log("Response from backend:", data);
-//     } catch (err) {
-//         console.error(err.message);
-//     }
-// };
-
 
   useEffect(() => {
     getComplaints();
   }, []);
 
-  const filteredComplaints = showCompleted == null ? complaints : showCompleted ? complaints.filter(complaint => complaint.is_completed) : complaints.filter(complaint => !complaint.is_completed);
+
+  // get the target element to toggle 
+  const refOne = useRef(null)
+
+  useEffect(() => {
+    document.addEventListener("keydown", hideOnEscape, true);
+    document.addEventListener("click", hideOnClickOutside, true);
+
+    // cleanup
+    return () => {
+      document.removeEventListener("keydown", hideOnEscape, true);
+      document.removeEventListener("click", hideOnClickOutside, true);
+    };
+  }, []);
+
+  // hide dropdown on ESC press
+  const hideOnEscape = (e) => {
+    // console.log(e.key)
+    if( e.key === "Escape" ) {
+      // setStatusMenuOpen(false);
+      // setHostelMenuOpen(false);
+      setCalendarMenuOpen(false);
+    }
+  }
+  
+  // Hide on outside click
+  const hideOnClickOutside = (e) => {
+    // console.log(refOne.current)
+    // console.log(e.target)
+    if( refOne.current && !refOne.current.contains(e.target) ) {
+      // setStatusMenuOpen(false);
+      // setHostelMenuOpen(false);
+      setCalendarMenuOpen(false);
+    }
+  }
+  
+  const [startDate,setStartDate]= useState(new Date());
+  const [endDate,setEndDate]= useState(new Date());
+
+  const selectionRange = {
+    startDate: startDate,
+    endDate: endDate,
+    key: 'selection',
+  }
+
+  // const handleTimeLineClick = (date) =>{
+  //   let filtered = filteredComplaints.filter((complaint)=>{
+  //     let complaintDate = new Date(complaint.date);
+  //     return(complaintDate>= date.selection.startDate &&
+  //       complaintDate<= date.selection.endDate);
+  //   })
+
+  //   setStartDate(date.selection.startDate);
+  //   setEndDate(date.selection.endDate);
+  //   filteredComplaints = filtered;
+  // };
+
+  const handleTimeLineClick = (date) =>{
+    // if(calendarFilter){
+    //   let filtered = filteredComplaints.filter((complaint)=>{
+    //     let complaintDate = new Date(complaint.date);
+    //     return(complaintDate>= date.selection.startDate &&
+    //       complaintDate<= date.selection.endDate);
+    //   });
+    // }
+    
+
+    setCalendarFilter(true);
+    // Use the setter functions to update state variables
+    setStartDate(date.selection.startDate);
+    setEndDate(date.selection.endDate);
+    // setFilteredComplaints(filtered); // Update the state variable directly
+};
+
+const filteredComplaints = complaints.filter(complaint => {
+  // Check if complaint falls within the selected date range
+  const complaintDate = new Date(complaint.dateCreated);
+  if (calendarFilter &&  !(complaintDate >= startDate && complaintDate <= endDate)) {
+      return false;
+  }
+
+  // If no menu item is selected, display all complaints
+  if (selectedStatus === null && selectedHostels.length === 0) {
+      return true;
+  }
+  // Filter by status
+  if (selectedStatus !== null && complaint.status !== selectedStatus) {
+      return false;
+  }
+  // Filter by selected hostels
+  if (selectedHostels.length > 0 && !selectedHostels.includes(complaint.block_name)) {
+      return false;
+  }
+
+  return true;
+});
+
+
 
   return (
-    <div className=''>
+    <div className='h-full'>
       <UpperNavbar />
-      <div className="flex h-4/5" style={{ paddingTop: '80px' }}>
+      <div className="flex h-full" style={{ paddingTop: '80px' }}>
       <div className="w-full p-4 overflow-y-auto">
         <h1 className="text-3xl font-bold mt-8 mb-6">Complaints</h1>
-        {filteredComplaints.length === 0 ? (
-          <p className="text-gray-600 text-lg">
-            No complaints registered yet.
-          </p>
-        ) : (
           <div className='flex bg-white dark:bg-dark_50 flex-col shadow-[rgba(50,_50,_105,_0.15)_0px_2px_5px_0px,_rgba(0,_0,_0,_0.05)_0px_1px_1px_0px] shadow-[rgba(0,_0,_0,_0.25)_0px_25px_50px_-12px] rounded-md border border-gray-200 dark:border-zinc-800'>
             <div className="h-1 rounded-tl-lg rounded-tr-lg dark:bg-dark-40 bg-[#09f3f1] bg-opacity-50" style={{ transform: 'translateY(-0.4px)' }}>
               <div className="h-full rounded-tl-lg rounded-tr-lg transition-all ease-in-out duration-300 bg-brand-50" style={{ width: '0%' }}></div>
             </div>
-            {/* <div className=''> This is for decoration part </div> */}
+
             <div className='px-3 py-2 '>
               <button class="flex items-center justify-between w-full group mb-1" aria-expanded="true">
                 <div className="text-md  font-semibold text-brand">Here are the Complaints Details...</div>
-                {/* <div className="flex items-center gap-x-2">
-                  <div className="p-1 rounded-lg text-sm  border dark:bg-dark_40  border-zinc-300 dark:border-zinc-800 bg-[#fafafa] text-zinc-700 dark:text-zinc-300"> usha </div>
-                  <svg className="w-8 h-8 flex-shrink-0  ml-3  rounded-lg text-sm border  rotate-180 fill-brand text-brand_50 group-hover:text-brand border-brand_20 bg-[#FDEDEA] dark:bg-[#ee4c2b39] dark:border-[#ee4c2b88]" viewBox="0 0 32 32">
-                    <path d="M16 20l-5.4-5.4 1.4-1.4 4 4 4-4 1.4 1.4z"></path>
-                  </svg>
-                </div> */}
               </button>
+              
+              <div class="mb-3 flex flex-col">
+                <div class="flex w-full flex-wrap gap-2">
 
+                    <div class="relative flex-1" data-headlessui-state={statusMenuOpen ? 'open' : ''}>
+                    {/* <div ref={refOne}> */}
+                        <div class="w-full">
+                          <button class="bg-[#eaefee] items-center rounded px-3 py-1.5 text-left cursor-pointer focus:outline-none whitespace-nowrap leading-5 bg-fill-3 dark:bg-dark-fill-3 text-label-2 dark:text-dark-label-2 hover:bg-fill-2 dark:hover:bg-dark-fill-2 active:bg-fill-3 dark:active:bg-dark-fill-3 flex w-full justify-between" id="headlessui-menu-button-:r4:" type="button" aria-haspopup="true"
+                          data-headlessui-state={statusMenuOpen ? 'open' : ''}
+                          aria-expanded={statusMenuOpen} 
+                          onClick={toggleStatusMenu}fdprocessedid="o72tuq" aria-controls="headlessui-menu-items-:r5r:">
+                              Status
+                              {statusMenuOpen ? (
+                              <svg
+                                xmlns="http://www.w3.org/2000/svg"
+                                viewBox="0 0 24 24"
+                                width="1em"
+                                height="1em"
+                                fill="currentColor"
+                                className="w-4.5 h-4.5 ml-3 pointer-events-none transition duration-300 text-label-3 dark:text-dark-label-3 rotate-180 transform"
+                                aria-hidden="true"
+                              >
+                                <path
+                                  fillRule="evenodd"
+                                  d="M4.929 7.913l7.078 7.057 7.064-7.057a1 1 0 111.414 1.414l-7.77 7.764a1 1 0 01-1.415 0L3.515 9.328a1 1 0 011.414-1.414z"
+                                  clipRule="evenodd"
+                                ></path>
+                              </svg>
+                            ) : (
+                              <svg
+                                xmlns="http://www.w3.org/2000/svg"
+                                viewBox="0 0 24 24"
+                                width="1em"
+                                height="1em"
+                                fill="currentColor"
+                                className="w-4.5 h-4.5 ml-3 pointer-events-none transition duration-300 text-label-4 dark:text-dark-label-4"
+                                aria-hidden="true"
+                              >
+                                <path
+                                  fillRule="evenodd"
+                                  d="M4.929 7.913l7.078 7.057 7.064-7.057a1 1 0 111.414 1.414l-7.77 7.764a1 1 0 01-1.415 0L3.515 9.328a1 1 0 011.414-1.414z"
+                                  clipRule="evenodd"
+                                ></path>
+                              </svg>
+                            )}
+                            </button>
+                        </div>
+                        <div className={`bg-[#f2f4f7] max-w-[15rem] min-w-[8.75rem] absolute z-dropdown mt-1 rounded-lg p-2 overflow-auto focus:outline-none shadow-level2 dark:shadow-dark-level2 bg-overlay-3 dark:bg-dark-overlay-3 max-h-[600px] transition ${statusMenuOpen ? 'ease-out duration-100 transform opacity-100 scale-100' : 'ease-in duration-75 transform opacity-0 scale-95 hidden'}`} aria-labelledby="headlessui-menu-button-:r4:" id="headlessui-menu-items-:r5r:" role="menu" tabIndex="0" style={{ zIndex: 999 }}>
+                          <div className="cursor-pointer select-none relative h-8 py-1.5 pl-2 pr-12 text-label-1 dark:text-dark-label-1 rounded hover:bg-white dark:hover:bg-gray-800" id="headlessui-menu-item-:r5s:" role="menuitem" tabIndex="-1" 
+                          onClick={() => handleStatusMenuItemClick(false)}
+                          data-headlessui-state="">
+                            <div class="flex h-5 items-center">
+                              <div class="truncate">
+                                <span class="flex items-center">
+                                  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="1em" height="1em" fill="currentColor" class="mr-1 h-[14px] w-[14px] text-orange dark:text-orange">
+                                    <path fill-rule="evenodd" d="M4 12a1 1 0 011-1h14a1 1 0 110 2H5a1 1 0 01-1-1z" clip-rule="evenodd"></path>
+                                  </svg>
+                                  <span>Pending</span>
+                                </span>
+                              </div>
+                            </div>
+                            {(selectedStatus == false) && (
+                                <span class="absolute inset-y-0 right-0 flex items-center pr-2 text-blue dark:text-blue">
+                                  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="1em" height="1em" fill="currentColor" class="h-5 w-5" aria-hidden="true">
+                                    <path fill-rule="evenodd" d="M9.688 15.898l-3.98-3.98a1 1 0 00-1.415 1.414L8.98 18.02a1 1 0 001.415 0L20.707 7.707a1 1 0 00-1.414-1.414l-9.605 9.605z" clip-rule="evenodd"></path>
+                                  </svg>
+                                </span> 
+                            )}
+                          </div>
+
+                          <div className="cursor-pointer select-none relative h-8 py-1.5 pl-2 pr-12 text-label-1 dark:text-dark-label-1 rounded hover:bg-white dark:hover:bg-gray-800" id="headlessui-menu-item-:r5s:" role="menuitem" tabIndex="-1" 
+                          onClick={() => handleStatusMenuItemClick(true)}data-headlessui-state="">
+                            <div class="flex h-5 items-center">
+                              <div class="truncate">
+                                <span class="flex items-center">
+                                  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="1em" height="1em" fill="currentColor" class="mr-1 h-[14px] w-[14px] text-darkgreen dark:text-darkgreen">
+                                    <path fill-rule="evenodd" d="M9.688 15.898l-3.98-3.98a1 1 0 00-1.415 1.414L8.98 18.02a1 1 0 001.415 0L20.707 7.707a1 1 0 00-1.414-1.414l-9.605 9.605z" clip-rule="evenodd"></path>
+                                  </svg>
+                                  <span>Solved</span>
+                                </span>
+                              </div>
+                            </div>
+                            {selectedStatus && (
+                              <span class="absolute inset-y-0 right-0 flex items-center pr-2 text-blue dark:text-blue">
+                                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="1em" height="1em" fill="currentColor" class="h-5 w-5" aria-hidden="true">
+                                  <path fill-rule="evenodd" d="M9.688 15.898l-3.98-3.98a1 1 0 00-1.415 1.414L8.98 18.02a1 1 0 001.415 0L20.707 7.707a1 1 0 00-1.414-1.414l-9.605 9.605z" clip-rule="evenodd"></path>
+                                </svg>
+                              </span>
+                            )}
+                          </div>
+                        </div>
+                    {/* </div> */}
+                    </div>
+
+                    <div class="relative flex-1" data-headlessui-state={hostelMenuOpen ? 'open' : ''}>
+                    {/* <div ref={refOne}> */}
+                      <div class="w-full">
+                        <button class="bg-[#eaefee] items-center rounded px-3 py-1.5 text-left cursor-pointer focus:outline-none whitespace-nowrap leading-5 bg-fill-3 dark:bg-dark-fill-3 text-label-2 dark:text-dark-label-2 hover:bg-fill-2 dark:hover:bg-dark-fill-2 active:bg-fill-3 dark:active:bg-dark-fill-3 flex w-full justify-between" id="headlessui-menu-button-:r4:" type="button" aria-haspopup="true"
+                        data-headlessui-state={hostelMenuOpen ? 'open' : ''}
+                        aria-expanded={hostelMenuOpen} 
+                        onClick={toggleHostelMenu}fdprocessedid="o72tuq" aria-controls="headlessui-menu-items-:r5r:">
+                            Hostel
+                            {hostelMenuOpen ? (
+                            <svg
+                              xmlns="http://www.w3.org/2000/svg"
+                              viewBox="0 0 24 24"
+                              width="1em"
+                              height="1em"
+                              fill="currentColor"
+                              className="w-4.5 h-4.5 ml-3 pointer-events-none transition duration-300 text-label-3 dark:text-dark-label-3 rotate-180 transform"
+                              aria-hidden="true"
+                            >
+                              <path
+                                fillRule="evenodd"
+                                d="M4.929 7.913l7.078 7.057 7.064-7.057a1 1 0 111.414 1.414l-7.77 7.764a1 1 0 01-1.415 0L3.515 9.328a1 1 0 011.414-1.414z"
+                                clipRule="evenodd"
+                              ></path>
+                            </svg>
+                          ) : (
+                            <svg
+                              xmlns="http://www.w3.org/2000/svg"
+                              viewBox="0 0 24 24"
+                              width="1em"
+                              height="1em"
+                              fill="currentColor"
+                              className="w-4.5 h-4.5 ml-3 pointer-events-none transition duration-300 text-label-4 dark:text-dark-label-4"
+                              aria-hidden="true"
+                            >
+                              <path
+                                fillRule="evenodd"
+                                d="M4.929 7.913l7.078 7.057 7.064-7.057a1 1 0 111.414 1.414l-7.77 7.764a1 1 0 01-1.415 0L3.515 9.328a1 1 0 011.414-1.414z"
+                                clipRule="evenodd"
+                              ></path>
+                            </svg>
+                          )}
+                        </button>
+                        <div class={`bg-[#f2f4f7] md:max-w-[400px] transform translate-x-[-85%] left-[60%] md:-translate-x-1/2 md:left-1/2 lg:-translate-x-0 lg:left-0 absolute w-max max-w-xs z-dropdown mt-1 p-2.5 rounded-lg focus:outline-none bg-overlay-3 dark:bg-dark-overlay-3 shadow-level3 dark:shadow-dark-level3 ${hostelMenuOpen ? 'ease-out duration-100 transform opacity-100 scale-100' : 'ease-in duration-75 transform opacity-0 scale-95 hidden'}`}  style={{ zIndex: 999 }} tabindex="-1" data-headlessui-state="open" id="headlessui-popover-panel-:r8k:">
+                          <div class="overflow-hidden">
+                            <div>
+                              <div class="relative rounded-md input_input-container__SZzNg">
+                                <div class="absolute inset-y-0 flex items-center pl-3 text-gray-6 dark:text-dark-gray-6 pointer-events-none left-0">
+                                  <span>
+                                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="1em" height="1em" fill="currentColor" class="w-4 h-4">
+                                      <path fill-rule="evenodd" d="M5.527 5.527a7.5 7.5 0 0111.268 9.852l3.581 3.583a1 1 0 01-1.414 1.415l-3.582-3.583A7.501 7.501 0 015.527 5.527zm1.414 1.414a5.5 5.5 0 107.779 7.779A5.5 5.5 0 006.94 6.94z" clip-rule="evenodd"></path>
+                                    </svg>
+                                  </span>
+                                </div>
+                                <input class="bg-white block w-full rounded-md leading-5 outline-none placeholder:text-label-4 dark:placeholder:text-dark-label-4 border-none py-1.5 text-label-2 dark:text-dark-label-2 bg-fill-3 dark:bg-dark-fill-3 focus:bg-fill-2 dark:focus:bg-dark-fill-2 pl-9 pr-3 sentry-unmask" autocomplete="off" type="text" placeholder="Filter hostels" fdprocessedid="jj9exg"
+                                value={filterValue} 
+                                onChange={handleInputChange}
+                                style={{ 
+                                  // Example styles:
+                                  fontSize: '14px', // Adjust the font size as needed
+                                  fontWeight: 'normal', // Adjust the font weight as needed
+                                  color: '#333', // Adjust the text color as needed
+                                  textTransform: 'capitalize',
+                                }}  ></input>
+                              </div>
+                            </div>
+
+                            <div class="mt-4">
+                              <div class="block">
+                                <div class="-m-1 mt-1 flex max-h-[400px] flex-wrap overflow-auto py-4">
+                                  {filteredHostelNames.map((name, index) => (
+                                    <span key={index} data-slug="" data-name="" 
+                                    className={`inline-flex items-center px-2 whitespace-nowrap text-xs leading-6 rounded-full text-label-3 dark:text-dark-label-3 bg-fill-3 dark:bg-dark-fill-3 cursor-pointer transition-all m-1 
+                                    ${selectedHostels.includes(name) ? 'bg-[#00eff3]' : 'bg-white hover:bg-[#faebd7]'} `}
+                                    onClick={() => handleHostelClick(name)}>
+                                        {name}
+                                    </span>
+                                ))}
+
+                                </div>
+                              </div>
+
+                              <hr class="border-divider-2 dark:border-dark-divider-2" />
+                              <div class="mt-2.5 flex flex-row-reverse px-2 py-0.5">
+                                  <div class="flex items-center space-x-1 outline-none text-label-3 dark:text-dark-label-3 cursor-pointer">
+                                  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="1em" height="1em" fill="currentColor" class="h-4 w-4">
+                                    <path fill-rule="evenodd" d="M5.725 9.255h2.843a1 1 0 110 2H3.2a1 1 0 01-1-1V4.887a1 1 0 012 0v3.056l2.445-2.297a9.053 9.053 0 11-2.142 9.415 1 1 0 011.886-.665 7.053 7.053 0 1010.064-8.515 7.063 7.063 0 00-8.417 1.202L5.725 9.255z" clip-rule="evenodd"></path>
+                                  </svg>
+                                  {/* <span>Reset</span> */}
+                                  <span
+                                  onClick={() => setSelectedHostels([])}
+                                  className="cursor-pointer transition-all hover:underline"
+                                  >
+                                    Reset
+                                  </span>
+                                
+                                </div>
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+                        
+                      </div>
+                    {/* </div> */}
+                    </div>
+                    
+                    <div class="relative flex-1" data-headlessui-state={calendarMenuOpen ? 'open' : ''}>
+                    <div ref={refOne}>
+                      <div class="w-full">
+                        <button class="bg-[#eaefee] items-center rounded px-3 py-1.5 text-left cursor-pointer focus:outline-none whitespace-nowrap leading-5 bg-fill-3 dark:bg-dark-fill-3 text-label-2 dark:text-dark-label-2 hover:bg-fill-2 dark:hover:bg-dark-fill-2 active:bg-fill-3 dark:active:bg-dark-fill-3 flex w-full justify-between" id="headlessui-menu-button-:r4:" type="button" aria-haspopup="true"
+                        data-headlessui-state={calendarMenuOpen ? 'open' : ''}
+                        aria-expanded={calendarMenuOpen} 
+                        onClick={toggleCalendarMenuOpen} fdprocessedid="o72tuq" aria-controls="headlessui-menu-items-:r5r:">
+                          <div class="flex items-center space-x-1 outline-none text-label-3 dark:text-dark-label-3 cursor-pointer">
+                                  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="1em" height="1em" fill="currentColor" class="h-4 w-4">
+                                    <path fill-rule="evenodd" d="M5.725 9.255h2.843a1 1 0 110 2H3.2a1 1 0 01-1-1V4.887a1 1 0 012 0v3.056l2.445-2.297a9.053 9.053 0 11-2.142 9.415 1 1 0 011.886-.665 7.053 7.053 0 1010.064-8.515 7.063 7.063 0 00-8.417 1.202L5.725 9.255z" clip-rule="evenodd"></path>
+                                  </svg>
+                                  {/* <span>Reset</span> */}
+                                  <span
+                                  onClick={handleTimelineResetClick}
+                                  className="cursor-pointer transition-all hover:underline"
+                                  >
+                                    Reset
+                                  </span>
+                                
+                                </div>
+
+                                {calendarFilter ? (
+                                  `${format(selectionRange.startDate, "MM/dd/yyyy")} to ${format(selectionRange.endDate, "MM/dd/yyyy")}`
+                                ) : (
+                                  "Click to Apply Timeline"
+                                )}               
+
+
+                            {calendarMenuOpen ? (
+                            <svg 
+                            xmlns="http://www.w3.org/2000/svg"
+                            viewBox="0 0 24 24"
+                            width="1.3em" 
+                            height="1.3em"
+                            fill="none" 
+                            className="w-4.5 h-4.5 ml-3 pointer-events-none transition duration-300 text-label-4 dark:text-dark-label-4">
+
+                            <g id="SVGRepo_bgCarrier" stroke-width="0"/>
+
+                            <g id="SVGRepo_tracerCarrier" stroke-linecap="round" stroke-linejoin="round"/>
+
+                            <g id="SVGRepo_iconCarrier"> <path d="M3 9H21M7 3V5M17 3V5M6 12H10V16H6V12ZM6.2 21H17.8C18.9201 21 19.4802 21 19.908 20.782C20.2843 20.5903 20.5903 20.2843 20.782 19.908C21 19.4802 21 18.9201 21 17.8V8.2C21 7.07989 21 6.51984 20.782 6.09202C20.5903 5.71569 20.2843 5.40973 19.908 5.21799C19.4802 5 18.9201 5 17.8 5H6.2C5.0799 5 4.51984 5 4.09202 5.21799C3.71569 5.40973 3.40973 5.71569 3.21799 6.09202C3 6.51984 3 7.07989 3 8.2V17.8C3 18.9201 3 19.4802 3.21799 19.908C3.40973 20.2843 3.71569 20.5903 4.09202 20.782C4.51984 21 5.07989 21 6.2 21Z" stroke="#1b19a4" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/> </g>
+
+                            </svg>
+                          ) : (
+                            <svg 
+                            xmlns="http://www.w3.org/2000/svg"
+                            viewBox="0 0 24 24"
+                            width="1.3em"
+                            height="1.3em"  
+                            fill="none"
+                            className="w-4.5 h-4.5 ml-3 pointer-events-none transition duration-300 text-label-3 dark:text-dark-label-3 transform" >
+                            <path d="M3 9H21M7 3V5M17 3V5M6 12H10V16H6V12ZM6.2 21H17.8C18.9201 21 19.4802 21 19.908 20.782C20.2843 20.5903 20.5903 20.2843 20.782 19.908C21 19.4802 21 18.9201 21 17.8V8.2C21 7.07989 21 6.51984 20.782 6.09202C20.5903 5.71569 20.2843 5.40973 19.908 5.21799C19.4802 5 18.9201 5 17.8 5H6.2C5.0799 5 4.51984 5 4.09202 5.21799C3.71569 5.40973 3.40973 5.71569 3.21799 6.09202C3 6.51984 3 7.07989 3 8.2V17.8C3 18.9201 3 19.4802 3.21799 19.908C3.40973 20.2843 3.71569 20.5903 4.09202 20.782C4.51984 21 5.07989 21 6.2 21Z" stroke="#000000" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                            </svg>
+                          )}
+                        </button>
+                        
+                        <div class={`bg-[#f2f4f7] md:max-w-[400px] transform translate-x-[-85%] left-[60%] md:-translate-x-1/2 md:left-1/2 lg:-translate-x-0 lg:left-0 absolute w-max max-w-xs z-dropdown mt-1 p-2.5 rounded-lg focus:outline-none bg-overlay-3 dark:bg-dark-overlay-3 shadow-level3 dark:shadow-dark-level3 ${calendarMenuOpen ? 'ease-out duration-100 transform opacity-100 scale-100' : 'ease-in duration-75 transform opacity-0 scale-95 hidden'} `}  style={{ zIndex: 999 }} tabindex="-1" data-headlessui-state="open" id="headlessui-popover-panel-:r8k:">
+
+                          {/* Usha Sri */}
+                          <div className="calendarWrap">
+
+                            
+
+                            {/* <div ref={refOne}> */}
+                              {calendarMenuOpen && 
+                                <DateRange
+                                  // onChange={() => {setCalendarFilter(true)}}
+                                  onChange={handleTimeLineClick}
+                                  editableDateInputs={true}
+                                  moveRangeOnFirstSelection={false}
+                                  ranges={[selectionRange]}
+                                  months={1}
+                                  direction="horizontal"
+                                  className="calendarElement"
+                                />
+                              }
+                            {/* </div> */}
+                            </div>
+                        </div>
+                        
+                      </div>
+                    </div>
+                    
+                    </div>
+              </div>
+
+              </div>
               <div class="text-sm dark:text-zinc-300 false">
                 <div class="p-2">
                   <div class="  font-primary  relative">
                     <div class=" bg-white dark:bg-dark border-2  dark:border-dark_40 rounded-xl">
                       <div class="overflow-x-auto">
-                        {/* usha sri table */}
                         <table class="table-auto w-full  divide-y  divide-gray-200">
-                          {/* this is table */}
                           <thead class="text-xs  text-[#8C8C8C] ">
                             <tr>
                               <th class="px-2 border-r-2  dark:border-dark_40 first:pl-5 last:pr-5 py-3 whitespace-nowrap">
@@ -164,25 +563,16 @@ const AdminPage2 = () => {
                             </tr>
                           </thead>
                           <tbody class="text-[13px]">
-                          {/* {filteredComplaints.map((complaint) => { */}
                           {filteredComplaints.map((complaint, index) => {
-                            // var curComplaintId = complaint._id;
-                            console.log(curComplaintId)
-                            return(
+                            return (
                             
                             <tr class="border-t-2 border-b-2 last:border-b-0  dark:border-dark_40">
-                              <td class="px-2 border-r-2  dark:border-dark_40 first:pl-5 last:pr-5 py-4 whitespace-nowrap">
-                                <div className="font-medium  text-gray-800 dark:text-zinc-200 flex justify-start items-start">
-                                <p className='text-[13px] '>{complaint._id}</p>
-                                </div>
-                              </td>
                               <td class="px-2 border-r-2  dark:border-dark_40 first:pl-5 last:pr-5 py-4 whitespace-nowrap">
                                 <div className="font-medium  text-gray-800 dark:text-zinc-200 flex justify-start items-start">
                                 <p className='text-[13px] '>{complaint.usn}</p>
                                 </div>
                               </td>
                               <td class="px-2 first:pl-5 last:pr-5 py-4 whitespace-nowrap flex justify-center items-center">
-                                {/* <input id="stmtrixzrs" name="complete" type="checkbox" class="w-4 h-4 form-checkbox text-brand_50 cursor-pointer rounded bg-brand"></input> */}
                                 <div className="font-medium text-gray-800 dark:text-zinc-200 flex justify-start items-start">
                                 <p className='text-[13px] '>{complaint.complaint_name}</p>
                                 </div>
@@ -211,16 +601,12 @@ const AdminPage2 = () => {
                                                 text-white`}
                                                 onClick={(event) => {
                                                   if (!complaint.status) {
-                                                    // event.stopPropagation(); // Prevent event from bubbling
-                                                    // event.preventDefault(); // Prevent default form submission
                                                     setCurComplaintId(complaint._id); // Set the current complaint ID
-                                                    // alert(complaint._id);
-                                                    // alert(`Button clicked for complaint ID: ${curComplaintId}`);
                                                     openModal(); // Open the modal
                                                   }
                                                 }}
                                   >
-                                    {complaint.status ? 'Completed' : 'Not Completed'}
+                                    {complaint.status ? 'Solved' : 'Pending'}
                                   </button>
                                     {isModalOpen && (
                                       <>
@@ -240,17 +626,13 @@ const AdminPage2 = () => {
                                             </div>
                                             <div className="px-5 dark:border-zinc-700 mb-4">
                                               <div className="flex flex-wrap justify-end space-x-2">
-                                                {/* <button type="submit" className="btn-brand-2 " fdprocessedid="hyryfr">Save</button> */}
                                                 <button type="submit" className={`text-md rounded-lg relative inline-flex items-center justify-center px-3.5 py-2 m-1 cursor-pointer border-b-2 border-l-2 border-r-2 active:border-brand active:shadow-none shadow-lg bg-gradient-to-tr from-red-500 to-red-500 hover:from-red-400 hover:to-red-400 border-red-600 text-white" fdprocessedid="hyryfr" `} 
                                                 id={curComplaintId}
                                                 value={curComplaintId}
                                                 onClick={(event) => {
-                                                  // event.stopPropagation(); // Prevent event from bubbling
-                                                  // event.preventDefault(); // Prevent default form submission
-                                                  // alert(`Button clicked for complaint ID: ${curComplaintId}`);
                                                   handleApproval(curComplaintId);
                                                 }}
-                                                >Mark as Completed</button>
+                                                >Mark as Solved</button>
                                                 
                                                 <button type="button" className="ml-2 text-gray-500" fdprocessedid="vbzuaj" onClick={closeModal}>Cancel</button>
                                               </div>
@@ -265,11 +647,11 @@ const AdminPage2 = () => {
 
                               </tr>
 
-);
-})
-}
+                            );
+                          })
+                          }
 
-                            </tbody>
+                          </tbody>
                           </table>
                         </div>
                       </div>
@@ -279,11 +661,10 @@ const AdminPage2 = () => {
 
           </div>
           </div>
-        )}
       </div>
       </div>
     </div>
   );
 }
-{/* <button class="flex items-center justify-between w-full group mb-1" aria-expanded="true">flex */}
+
 export default AdminPage2;
