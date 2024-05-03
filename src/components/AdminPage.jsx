@@ -1,9 +1,18 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import { GetAuthHeader } from "../utils/Headers";
 import '../styles/tailwind.css';
 import UpperNavbar from './UpperNavbar';
 
+import { DateRange } from 'react-date-range'
+
+import format from 'date-fns/format'
+import { addDays } from 'date-fns'
+
+import 'react-date-range/dist/styles.css'
+import 'react-date-range/dist/theme/default.css'
+
 const AdminPage = () => {
+  const [calendarFilter, setCalendarFilter] = useState(false);
   const hostelNames = ["Bhargavi", "Bhuvana", "Neelima", "Nirmala", "Manasa", "Mrudula", "Rohini", "Revathi", "Spoorthi", "Vaidehi", "Gayathri", "Saradha", "Vaishnavi", "Rajeswari"];
 
   const [filterValue, setFilterValue] = useState('');
@@ -32,16 +41,27 @@ const AdminPage = () => {
       updatedHostels.splice(index, 1);
       setSelectedHostels(updatedHostels);
     }
-
-    // toggleHostelMenu();
   };
+
+  const handleTimelineResetClick = (event) => {
+    event.stopPropagation();
+    setCalendarFilter(false);
+
+    setStartDate(new Date());
+    setEndDate(new Date());
+  }
 
   const [selectedStatus, setSelectedStatus] = useState(null);
   
   const handleStatusMenuItemClick = (status) => {
     console.log('came to set', status)
-    setSelectedStatus(status);
-    toggleStatusMenu(); // Close the status menu after selection (optional)
+
+    if(status == selectedStatus){
+      setSelectedStatus(null)
+    }
+    else{
+      setSelectedStatus(status);
+    }
   };
   
   const [statusMenuOpen, setStatusMenuOpen] = useState(false);
@@ -52,6 +72,11 @@ const AdminPage = () => {
   const [hostelMenuOpen, setHostelMenuOpen] = useState(false);
   const toggleHostelMenu = () => {
     setHostelMenuOpen(!hostelMenuOpen);
+  }; 
+
+  const [calendarMenuOpen, setCalendarMenuOpen] = useState(false);
+  const toggleCalendarMenuOpen = () => {
+    setCalendarMenuOpen(!calendarMenuOpen);
   }; 
 
   const [curComplaintId, setCurComplaintId] = useState(null);
@@ -78,6 +103,7 @@ const AdminPage = () => {
       // console.log(JSON.stringify(jsonData, null, 2));
       setComplaints(jsonData); // Set jsonData directly to the state
       console.log('complaints ', complaints);
+      console.log('hii')
     } catch (err) {
       console.error(err.message);
     }
@@ -107,22 +133,79 @@ const AdminPage = () => {
     getComplaints();
   }, []);
 
-  const filteredComplaints = complaints.filter(complaint => {
-    // If no menu item is selected, display all complaints
-    if (selectedStatus === null && selectedHostels.length === 0) {
-      return true;
-    }
-    // Filter by status
-    if (selectedStatus !== null && complaint.status !== selectedStatus) {
-      return false;
-    }
-    // Filter by selected hostels
-    if (selectedHostels.length > 0 && !selectedHostels.includes(complaint.block_name)) {
-      return false;
-    }
 
+  // get the target element to toggle 
+  const refOne = useRef(null)
+
+  useEffect(() => {
+    document.addEventListener("keydown", hideOnEscape, true);
+    document.addEventListener("click", hideOnClickOutside, true);
+
+    // cleanup
+    return () => {
+      document.removeEventListener("keydown", hideOnEscape, true);
+      document.removeEventListener("click", hideOnClickOutside, true);
+    };
+  }, []);
+
+  // hide dropdown on ESC press
+  const hideOnEscape = (e) => {
+    // console.log(e.key)
+    if( e.key === "Escape" ) {
+      // setStatusMenuOpen(false);
+      // setHostelMenuOpen(false);
+      setCalendarMenuOpen(false);
+    }
+  }
+  
+  // Hide on outside click
+  const hideOnClickOutside = (e) => {
+    // console.log(refOne.current)
+    // console.log(e.target)
+    if( refOne.current && !refOne.current.contains(e.target) ) {
+      // setStatusMenuOpen(false);
+      // setHostelMenuOpen(false);
+      setCalendarMenuOpen(false);
+    }
+  }
+  
+  const [startDate,setStartDate]= useState(new Date());
+  const [endDate,setEndDate]= useState(new Date());
+
+  const selectionRange = {
+    startDate: startDate,
+    endDate: endDate,
+    key: 'selection',
+  }
+
+  const handleTimeLineClick = (date) =>{
+    console.log('clicked timeline')
+    setCalendarFilter(true);
+    setStartDate(date.selection.startDate);
+    setEndDate(date.selection.endDate);
+};
+
+const filteredComplaints = complaints.filter(complaint => {
+  const complaintDate = new Date(complaint.date);
+  if (calendarFilter &&  !(complaintDate >= startDate && complaintDate <=  addDays(endDate, 1))) {
+    return false;
+  }
+  
+  // console.log('sd = ', startDate, 'ed = ', endDate, 'cd = ', complaintDate)
+
+  if (selectedStatus === null && selectedHostels.length === 0) {
     return true;
-  });
+  }
+  if (selectedStatus !== null && complaint.status !== selectedStatus) {
+    return false;
+  }
+  if (selectedHostels.length > 0 && !selectedHostels.includes(complaint.block_name)) {
+    return false;
+  }
+  
+  return true;
+});
+
 
 
   return (
@@ -145,6 +228,7 @@ const AdminPage = () => {
                 <div class="flex w-full flex-wrap gap-2">
 
                     <div class="relative flex-1" data-headlessui-state={statusMenuOpen ? 'open' : ''}>
+                    {/* <div ref={refOne}> */}
                         <div class="w-full">
                           <button class="bg-[#eaefee] items-center rounded px-3 py-1.5 text-left cursor-pointer focus:outline-none whitespace-nowrap leading-5 bg-fill-3 dark:bg-dark-fill-3 text-label-2 dark:text-dark-label-2 hover:bg-fill-2 dark:hover:bg-dark-fill-2 active:bg-fill-3 dark:active:bg-dark-fill-3 flex w-full justify-between" id="headlessui-menu-button-:r4:" type="button" aria-haspopup="true"
                           data-headlessui-state={statusMenuOpen ? 'open' : ''}
@@ -230,9 +314,11 @@ const AdminPage = () => {
                             )}
                           </div>
                         </div>
+                    {/* </div> */}
                     </div>
 
                     <div class="relative flex-1" data-headlessui-state={hostelMenuOpen ? 'open' : ''}>
+                    {/* <div ref={refOne}> */}
                       <div class="w-full">
                         <button class="bg-[#eaefee] items-center rounded px-3 py-1.5 text-left cursor-pointer focus:outline-none whitespace-nowrap leading-5 bg-fill-3 dark:bg-dark-fill-3 text-label-2 dark:text-dark-label-2 hover:bg-fill-2 dark:hover:bg-dark-fill-2 active:bg-fill-3 dark:active:bg-dark-fill-3 flex w-full justify-between" id="headlessui-menu-button-:r4:" type="button" aria-haspopup="true"
                         data-headlessui-state={hostelMenuOpen ? 'open' : ''}
@@ -318,7 +404,6 @@ const AdminPage = () => {
                                   <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="1em" height="1em" fill="currentColor" class="h-4 w-4">
                                     <path fill-rule="evenodd" d="M5.725 9.255h2.843a1 1 0 110 2H3.2a1 1 0 01-1-1V4.887a1 1 0 012 0v3.056l2.445-2.297a9.053 9.053 0 11-2.142 9.415 1 1 0 011.886-.665 7.053 7.053 0 1010.064-8.515 7.063 7.063 0 00-8.417 1.202L5.725 9.255z" clip-rule="evenodd"></path>
                                   </svg>
-                                  {/* <span>Reset</span> */}
                                   <span
                                   onClick={() => setSelectedHostels([])}
                                   className="cursor-pointer transition-all hover:underline"
@@ -333,12 +418,94 @@ const AdminPage = () => {
                         </div>
                         
                       </div>
+                    {/* </div> */}
                     </div>
                     
-                </div>
+                    <div class="relative flex-1" data-headlessui-state={calendarMenuOpen ? 'open' : ''}>
+                    <div ref={refOne}>
+                      <div class="w-full">
+                        <button class="bg-[#eaefee] items-center rounded px-3 py-1.5 text-left cursor-pointer focus:outline-none whitespace-nowrap leading-5 bg-fill-3 dark:bg-dark-fill-3 text-label-2 dark:text-dark-label-2 hover:bg-fill-2 dark:hover:bg-dark-fill-2 active:bg-fill-3 dark:active:bg-dark-fill-3 flex w-full justify-between" id="headlessui-menu-button-:r4:" type="button" aria-haspopup="true"
+                        data-headlessui-state={calendarMenuOpen ? 'open' : ''}
+                        aria-expanded={calendarMenuOpen} 
+                        onClick={toggleCalendarMenuOpen} fdprocessedid="o72tuq" aria-controls="headlessui-menu-items-:r5r:">
+                          <div class="flex items-center space-x-1 outline-none text-label-3 dark:text-dark-label-3 cursor-pointer">
+                                  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="1em" height="1em" fill="currentColor" class="h-4 w-4">
+                                    <path fill-rule="evenodd" d="M5.725 9.255h2.843a1 1 0 110 2H3.2a1 1 0 01-1-1V4.887a1 1 0 012 0v3.056l2.445-2.297a9.053 9.053 0 11-2.142 9.415 1 1 0 011.886-.665 7.053 7.053 0 1010.064-8.515 7.063 7.063 0 00-8.417 1.202L5.725 9.255z" clip-rule="evenodd"></path>
+                                  </svg>
+                                  <span
+                                  onClick={handleTimelineResetClick}
+                                  className="cursor-pointer transition-all hover:underline"
+                                  >
+                                    Reset
+                                  </span>
+                                
+                                </div>
+
+                                {calendarFilter ? (
+                                  `${format(selectionRange.startDate, "MM/dd/yyyy")} to ${format(selectionRange.endDate, "MM/dd/yyyy")}`
+                                ) : (
+                                  "Click to Apply Timeline"
+                                )}               
+
+
+                            {calendarMenuOpen ? (
+                            <svg 
+                            xmlns="http://www.w3.org/2000/svg"
+                            viewBox="0 0 24 24"
+                            width="1.3em" 
+                            height="1.3em"
+                            fill="none" 
+                            className="w-4.5 h-4.5 ml-3 pointer-events-none transition duration-300 text-label-4 dark:text-dark-label-4">
+
+                            <g id="SVGRepo_bgCarrier" stroke-width="0"/>
+
+                            <g id="SVGRepo_tracerCarrier" stroke-linecap="round" stroke-linejoin="round"/>
+
+                            <g id="SVGRepo_iconCarrier"> <path d="M3 9H21M7 3V5M17 3V5M6 12H10V16H6V12ZM6.2 21H17.8C18.9201 21 19.4802 21 19.908 20.782C20.2843 20.5903 20.5903 20.2843 20.782 19.908C21 19.4802 21 18.9201 21 17.8V8.2C21 7.07989 21 6.51984 20.782 6.09202C20.5903 5.71569 20.2843 5.40973 19.908 5.21799C19.4802 5 18.9201 5 17.8 5H6.2C5.0799 5 4.51984 5 4.09202 5.21799C3.71569 5.40973 3.40973 5.71569 3.21799 6.09202C3 6.51984 3 7.07989 3 8.2V17.8C3 18.9201 3 19.4802 3.21799 19.908C3.40973 20.2843 3.71569 20.5903 4.09202 20.782C4.51984 21 5.07989 21 6.2 21Z" stroke="#1b19a4" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/> </g>
+
+                            </svg>
+                          ) : (
+                            <svg 
+                            xmlns="http://www.w3.org/2000/svg"
+                            viewBox="0 0 24 24"
+                            width="1.3em"
+                            height="1.3em"  
+                            fill="none"
+                            className="w-4.5 h-4.5 ml-3 pointer-events-none transition duration-300 text-label-3 dark:text-dark-label-3 transform" >
+                            <path d="M3 9H21M7 3V5M17 3V5M6 12H10V16H6V12ZM6.2 21H17.8C18.9201 21 19.4802 21 19.908 20.782C20.2843 20.5903 20.5903 20.2843 20.782 19.908C21 19.4802 21 18.9201 21 17.8V8.2C21 7.07989 21 6.51984 20.782 6.09202C20.5903 5.71569 20.2843 5.40973 19.908 5.21799C19.4802 5 18.9201 5 17.8 5H6.2C5.0799 5 4.51984 5 4.09202 5.21799C3.71569 5.40973 3.40973 5.71569 3.21799 6.09202C3 6.51984 3 7.07989 3 8.2V17.8C3 18.9201 3 19.4802 3.21799 19.908C3.40973 20.2843 3.71569 20.5903 4.09202 20.782C4.51984 21 5.07989 21 6.2 21Z" stroke="#000000" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                            </svg>
+                          )}
+                        </button>
+                        
+                        <div class={`bg-[#f2f4f7] md:max-w-[400px] transform translate-x-[-85%] left-[60%] md:-translate-x-1/2 md:left-1/2 lg:-translate-x-0 lg:left-0 absolute w-max max-w-xs z-dropdown mt-1 p-2.5 rounded-lg focus:outline-none bg-overlay-3 dark:bg-dark-overlay-3 shadow-level3 dark:shadow-dark-level3 ${calendarMenuOpen ? 'ease-out duration-100 transform opacity-100 scale-100' : 'ease-in duration-75 transform opacity-0 scale-95 hidden'} `}  style={{ zIndex: 999 }} tabindex="-1" data-headlessui-state="open" id="headlessui-popover-panel-:r8k:">
+
+                          <div className="calendarWrap">
+
+                            
+
+                            {/* <div ref={refOne}> */}
+                              {calendarMenuOpen && 
+                                <DateRange
+                                  onChange={handleTimeLineClick}
+                                  editableDateInputs={true}
+                                  moveRangeOnFirstSelection={false}
+                                  ranges={[selectionRange]}
+                                  months={1}
+                                  direction="horizontal"
+                                  className="calendarElement"
+                                />
+                              }
+                            {/* </div> */}
+                            </div>
+                        </div>
+                        
+                      </div>
+                    </div>
+                    
+                    </div>
               </div>
 
-
+              </div>
               <div class="text-sm dark:text-zinc-300 false">
                 <div class="p-2">
                   <div class="  font-primary  relative">
