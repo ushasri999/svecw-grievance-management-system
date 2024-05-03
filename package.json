@@ -14,11 +14,16 @@
     "autoprefixer": "^10.4.17",
     "axios": "^1.6.5",
     "clsx": "^2.1.0",
+    "debug": "^4.3.4",
+    "detect-port-alt": "^1.1.6",
+    "dotenv-expand": "^11.0.6",
+    "isexe": "^3.1.1",
     "jsonwebtoken": "^9.0.2",
     "mongoose": "^8.1.0",
     "postcss": "^8.4.33",
     "rc-slider": "^10.5.0",
     "react": "^18.2.0",
+    "react-date-range": "^2.0.1",
     "react-dom": "^18.2.0",
     "react-icons": "^5.0.1",
     "react-router-dom": "^6.21.2",
@@ -29,8 +34,8 @@
   "scripts": {
     "both": "concurrently \"npm run server\" \"npm run client\"",
     "server": "nodemon server/server.js",
-    "client": "cd src && npm start",
-    "start": "react-scripts start",
+    "client": "cd src &&  npm start",
+    "start": "set PORT=3006 && react-scripts start",
     "build": "react-scripts build",
     "test": "react-scripts test",
     "eject": "react-scripts eject"
@@ -55,5 +60,9 @@
   },
   "devDependencies": {
     "concurrently": "^8.2.2"
-  }
+  },
+  "description": "This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).",
+  "main": "postcss.config.js",
+  "author": "",
+  "license": "ISC"
 }
