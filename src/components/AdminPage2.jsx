@@ -41,8 +41,6 @@ const AdminPage2 = () => {
       updatedHostels.splice(index, 1);
       setSelectedHostels(updatedHostels);
     }
-
-    // toggleHostelMenu();
   };
 
   const handleTimelineResetClick = (event) => {
@@ -51,7 +49,6 @@ const AdminPage2 = () => {
 
     setStartDate(new Date());
     setEndDate(new Date());
-
   }
 
   const [selectedStatus, setSelectedStatus] = useState(null);
@@ -65,7 +62,6 @@ const AdminPage2 = () => {
     else{
       setSelectedStatus(status);
     }
-    // toggleStatusMenu(); // Close the status menu after selection (optional)
   };
   
   const [statusMenuOpen, setStatusMenuOpen] = useState(false);
@@ -107,6 +103,7 @@ const AdminPage2 = () => {
       // console.log(JSON.stringify(jsonData, null, 2));
       setComplaints(jsonData); // Set jsonData directly to the state
       console.log('complaints ', complaints);
+      console.log('hii')
     } catch (err) {
       console.error(err.message);
     }
@@ -181,55 +178,31 @@ const AdminPage2 = () => {
     key: 'selection',
   }
 
-  // const handleTimeLineClick = (date) =>{
-  //   let filtered = filteredComplaints.filter((complaint)=>{
-  //     let complaintDate = new Date(complaint.date);
-  //     return(complaintDate>= date.selection.startDate &&
-  //       complaintDate<= date.selection.endDate);
-  //   })
-
-  //   setStartDate(date.selection.startDate);
-  //   setEndDate(date.selection.endDate);
-  //   filteredComplaints = filtered;
-  // };
-
   const handleTimeLineClick = (date) =>{
-    // if(calendarFilter){
-    //   let filtered = filteredComplaints.filter((complaint)=>{
-    //     let complaintDate = new Date(complaint.date);
-    //     return(complaintDate>= date.selection.startDate &&
-    //       complaintDate<= date.selection.endDate);
-    //   });
-    // }
-    
-
+    console.log('clicked timeline')
     setCalendarFilter(true);
-    // Use the setter functions to update state variables
     setStartDate(date.selection.startDate);
     setEndDate(date.selection.endDate);
-    // setFilteredComplaints(filtered); // Update the state variable directly
 };
 
 const filteredComplaints = complaints.filter(complaint => {
-  // Check if complaint falls within the selected date range
-  const complaintDate = new Date(complaint.dateCreated);
-  if (calendarFilter &&  !(complaintDate >= startDate && complaintDate <= endDate)) {
-      return false;
+  const complaintDate = new Date(complaint.date);
+  if (calendarFilter &&  !(complaintDate >= startDate && complaintDate <=  addDays(endDate, 1))) {
+    return false;
   }
+  
+  // console.log('sd = ', startDate, 'ed = ', endDate, 'cd = ', complaintDate)
 
-  // If no menu item is selected, display all complaints
   if (selectedStatus === null && selectedHostels.length === 0) {
-      return true;
+    return true;
   }
-  // Filter by status
   if (selectedStatus !== null && complaint.status !== selectedStatus) {
-      return false;
+    return false;
   }
-  // Filter by selected hostels
   if (selectedHostels.length > 0 && !selectedHostels.includes(complaint.block_name)) {
-      return false;
+    return false;
   }
-
+  
   return true;
 });
 
@@ -431,7 +404,6 @@ const filteredComplaints = complaints.filter(complaint => {
                                   <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="1em" height="1em" fill="currentColor" class="h-4 w-4">
                                     <path fill-rule="evenodd" d="M5.725 9.255h2.843a1 1 0 110 2H3.2a1 1 0 01-1-1V4.887a1 1 0 012 0v3.056l2.445-2.297a9.053 9.053 0 11-2.142 9.415 1 1 0 011.886-.665 7.053 7.053 0 1010.064-8.515 7.063 7.063 0 00-8.417 1.202L5.725 9.255z" clip-rule="evenodd"></path>
                                   </svg>
-                                  {/* <span>Reset</span> */}
                                   <span
                                   onClick={() => setSelectedHostels([])}
                                   className="cursor-pointer transition-all hover:underline"
@@ -460,7 +432,6 @@ const filteredComplaints = complaints.filter(complaint => {
                                   <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="1em" height="1em" fill="currentColor" class="h-4 w-4">
                                     <path fill-rule="evenodd" d="M5.725 9.255h2.843a1 1 0 110 2H3.2a1 1 0 01-1-1V4.887a1 1 0 012 0v3.056l2.445-2.297a9.053 9.053 0 11-2.142 9.415 1 1 0 011.886-.665 7.053 7.053 0 1010.064-8.515 7.063 7.063 0 00-8.417 1.202L5.725 9.255z" clip-rule="evenodd"></path>
                                   </svg>
-                                  {/* <span>Reset</span> */}
                                   <span
                                   onClick={handleTimelineResetClick}
                                   className="cursor-pointer transition-all hover:underline"
@@ -508,7 +479,6 @@ const filteredComplaints = complaints.filter(complaint => {
                         
                         <div class={`bg-[#f2f4f7] md:max-w-[400px] transform translate-x-[-85%] left-[60%] md:-translate-x-1/2 md:left-1/2 lg:-translate-x-0 lg:left-0 absolute w-max max-w-xs z-dropdown mt-1 p-2.5 rounded-lg focus:outline-none bg-overlay-3 dark:bg-dark-overlay-3 shadow-level3 dark:shadow-dark-level3 ${calendarMenuOpen ? 'ease-out duration-100 transform opacity-100 scale-100' : 'ease-in duration-75 transform opacity-0 scale-95 hidden'} `}  style={{ zIndex: 999 }} tabindex="-1" data-headlessui-state="open" id="headlessui-popover-panel-:r8k:">
 
-                          {/* Usha Sri */}
                           <div className="calendarWrap">
 
                             
@@ -516,7 +486,6 @@ const filteredComplaints = complaints.filter(complaint => {
                             {/* <div ref={refOne}> */}
                               {calendarMenuOpen && 
                                 <DateRange
-                                  // onChange={() => {setCalendarFilter(true)}}
                                   onChange={handleTimeLineClick}
                                   editableDateInputs={true}
                                   moveRangeOnFirstSelection={false}
