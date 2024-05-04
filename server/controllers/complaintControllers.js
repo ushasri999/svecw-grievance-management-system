@@ -57,10 +57,10 @@ exports.postComplaints = async (req, res) => {
         console.log('user_id = ', user_id);
         console.log('block_id = ', block_id);
 
-        const {complaint_name, description, room} = req.body;
+        const {name, description, room} = req.body;
 
         const newComplaint = new Complaint({
-            complaint_name,
+            complaint_name: name,
             block_id, 
             student_id: student._id,
             description, 
