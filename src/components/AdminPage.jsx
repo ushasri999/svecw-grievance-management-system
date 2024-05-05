@@ -211,7 +211,7 @@ const filteredComplaints = complaints.filter(complaint => {
   return (
     <div className='h-full'>
       <UpperNavbar />
-      <div className="flex h-full" style={{ paddingTop: '80px' }}>
+      <div className="flex flex-col h-screen overflow-hidden" style={{ paddingTop: '80px' }}>
       <div className="w-full p-4 overflow-y-auto">
         <h1 className="text-3xl font-bold mt-8 mb-6">Complaints</h1>
           <div className='flex bg-white dark:bg-dark_50 flex-col shadow-[rgba(50,_50,_105,_0.15)_0px_2px_5px_0px,_rgba(0,_0,_0,_0.05)_0px_1px_1px_0px] shadow-[rgba(0,_0,_0,_0.25)_0px_25px_50px_-12px] rounded-md border border-gray-200 dark:border-zinc-800'>
