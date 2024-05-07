@@ -57,10 +57,10 @@ exports.postComplaints = async (req, res) => {
         console.log('user_id = ', user_id);
         console.log('block_id = ', block_id);
 
-        const {complaint_name, description, room} = req.body;
+        const {name, description, room} = req.body;
 
         const newComplaint = new Complaint({
-            complaint_name,
+            complaint_name: name,
             block_id, 
             student_id: student._id,
             description, 
@@ -138,8 +138,32 @@ exports.getAllComplaintsByUser = async (req, res) => {
             // console.log(Student.findOne(decodedToken.user._id));
             const student = await Student.findOne({ user_id: user_id});
             console.log('student = ', student);
-            const allComplaints = await Complaint.find({student_id: student._id}).sort({created_at: -1});
-            res.json(allComplaints);
+            const curStudentComplaints = await Complaint.find({student_id: student._id}).sort({created_at: -1});
+            
+            let ans = [];
+
+            await Promise.all(curStudentComplaints.map(async (complaint) => {
+                const cur = {}
+                
+                // Fetch student and block details using async/await
+                const student = await Student.findOne({_id: complaint.student_id});
+                const block = await Block.findOne({_id: complaint.block_id});
+            
+                // Populate cur object with fetched details
+                cur.complaint_id = complaint._id;
+                cur.complaint_name = complaint.complaint_name;
+                cur.created_at = complaint.created_at;
+                cur.assigned_at = complaint.assigned_at;
+                cur.description = complaint.description;
+                cur.is_completed = complaint.is_completed;
+            
+                // console.log(cur);
+                ans.push(cur);
+            }));
+
+            console.log("ans = ", ans);
+
+            res.json(ans);
         }
         else if(type == 'warden'){
             const allComplaints = await Complaint.find().sort({created_at: -1});
@@ -153,7 +177,6 @@ exports.getAllComplaintsByUser = async (req, res) => {
                 const block = await Block.findOne({_id: complaint.block_id});
             
                 // Populate cur object with fetched details
-                cur._id = complaint._id;
                 cur.usn = student ? student.usn : null;
                 cur.complaint_name = complaint.complaint_name;
                 cur.description = complaint.description;
