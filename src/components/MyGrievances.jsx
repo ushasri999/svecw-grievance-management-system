@@ -47,75 +47,78 @@ const MyGrievances = () => {
     }
   };
 
-  const handleApproval = async (complaint_id) => {
-    try {
-      console.log('complaint_id ', complaint_id)
-      const response = await fetch(
-        `http://localhost:5000/complaints/${complaint_id}`,
-        {
-          method: "PUT",
-          headers: GetAuthHeader(),
-        }
-      );
-
-    } catch (err) {
-      console.error(err.message);
-    }
-  };
-
   useEffect(() => {
     getComplaints();
   }, []);
 
   console.log(complaints);
-
   return (
-    
-    <>
-       <div className="bg-gray-100 p-4 sm:p-8 md:p-10 min-h-screen">
-      <h1 className="text-3xl font-bold mt-8 mb-6">Complaints</h1> {/* Adjusted margin bottom */}
+    <div className="bg-gray-100 p-4 sm:p-8 md:p-10 h-screen">
+      <h1 className="text-4xl font-bold mt-20 mb-8">Complaints</h1>
       {complaints.length === 0 ? (
-        <p className="text-gray-600 text-lg">
+        <p className="ml-4 mt-2 text-gray-600 text-xl">
           No complaints registered yet.
         </p>
       ) : (
-        <div className="grid gap-8 md:grid-cols-3 sm:grid-cols-1">
-          {complaints.map((complaint) => (
-            <div key={complaint.complaint_id} className="rounded-md border border-gray-200 bg-white hover:border-gray-400 overflow-hidden p-4">
-              <div className="p-8">
-                <h2 className="text-lg mb-4 font-semibold text-gray-900 hover:text-black">
-                  {complaint.complaint_name}
-                </h2>
-                <p className="text-sm text-gray-900 mb-2">
-                  Created on {formatTimestamp1(complaint.created_at)}
-                </p>
-                {complaint.assigned_at && (
-                  <p className="text-sm text-gray-600 mb-2">
-                    Completed on {formatTimestamp(complaint.assigned_at)}
-                  </p>
-                )}
-                <p className="text-sm leading-relaxed text-gray-700 mb-4">
-                  {complaint.description}
-                </p>
-                <button
-                  className={`w-full py-2 rounded font-bold text-white transition duration-300 ${
-                    complaint.is_completed ? 'bg-green-500 hover:bg-green-600' : 'bg-red-600 hover:bg-red-700'
-                  }`}
-                  onClick={() => handleApproval(complaint._id)}
-                >
-                  {complaint.is_completed ? 'Completed' : 'Not Completed'}
-                </button>
-              </div>
-            </div>
-          ))}
+        <div className="overflow-x-auto">
+          <div className="w-full overflow-x-scroll">
+            <table className="w-full divide-y divide-gray-200">
+              <thead className="bg-gray-50">
+                <tr>
+                  <th scope="col" className="px-4 py-3 text-center text-base font-medium text-black uppercase tracking-wider border">
+                    Name
+                  </th>
+                  <th scope="col" className="px-4 py-3 text-center text-base font-medium text-black uppercase tracking-wider border">
+                    Created At
+                  </th>
+                  <th scope="col" className="px-4 py-3 text-center text-base font-medium text-black uppercase tracking-wider border">
+                    Completed At
+                  </th>
+                  <th scope="col" className="px-4 py-3 text-center text-base font-medium text-black uppercase tracking-wider border">
+                    Description
+                  </th>
+                  <th scope="col" className="px-4 py-3 text-center text-base font-medium text-black uppercase tracking-wider border">
+                    Status
+                  </th>
+                </tr>
+              </thead>
+              <tbody className="bg-white divide-y divide-gray-200">
+                {complaints.map((complaint) => (
+                  <tr key={complaint.complaint_id} className="hover:bg-gray-50">
+                    <td className="px-4 py-4 whitespace-nowrap text-center text-base text-gray-500 border">
+                      {complaint.complaint_name}
+                    </td>
+                    <td className="px-4 py-4 whitespace-nowrap text-center text-base text-gray-500 border">
+                      {formatTimestamp1(complaint.created_at)}
+                    </td>
+                    <td className="px-4 py-4 whitespace-nowrap text-center text-base text-gray-500 border">
+                      {complaint.is_completed ? formatTimestamp(complaint.assigned_at) : '--------------'}
+                    </td>
+                    <td className="px-4 py-4 whitespace-nowrap text-center text-base text-gray-500 border">
+                      {complaint.description}
+                    </td>
+                    <td className="px-4 py-4 whitespace-nowrap text-center text-base border">
+                    <button
+                        className={clsx(
+                          "group flex cursor-pointer items-center justify-center rounded-md px-4 py-2 text-white transition text-base",
+                          complaint.is_completed ? "bg-green-500" : "bg-red-600"
+                        )}
+                        style={{ marginLeft: 'auto', marginRight: 'auto' }}
+                      >
+                        {complaint.is_completed ? "Solved" : "Pending"}
+                      </button>
+
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
         </div>
       )}
     </div>
-
-
-
-</>
   );
-}
+  
+};  
 
-export default MyGrievances
+export default MyGrievances;
