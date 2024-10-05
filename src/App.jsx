@@ -8,16 +8,12 @@ import Reset from './components/Reset';
 import { RecoveryProvider } from './components/RecoveryContext';
 import RaiseComplaint from './components/RaiseComplaint';
 import MyGrievances from './components/MyGrievances';
-import SideNavbar from './components/SideNavbar'; // Renamed YourComponent for clarity
 import Test from './components/Test';
 import {ComplaintsPage, ComplaintForm} from './components/Complaint'
 
 import './styles/tailwind.css'; // Assuming you have Tailwind CSS styles
 import './css/Dashboard.css'; // Assuming you have your own CSS for Dashboard
 import AdminPage from './components/AdminPage';
-import SideNavbarr from './components/SideNavbarr';
-import UpperNavbar from './components/UpperNavbar';
-import Sidenavbarr from './components/SideNavbarr';
 import Home from './components/Home';
 import Popup from './components/Popup';
 import CheckboxAlignment from './components/CheckboxAlignment';
@@ -29,13 +25,17 @@ import EmojiSlider from './components/EmojiSlider';
 import FeedbackFormContent from './components/FeedbackFormContent';
 import FeedbackForm from './components/FeedbackForm';
 import AdminPage2 from './components/AdminPage2';
+import AdminMessComplaints from './components/MessComplaintsAdmin';
+import AdminSide from './components/Admin';
+import Landing from './components/Landing';
 
 const App = () => {
   return (
     <div className="App h-full">
       <BrowserRouter>
         <Routes>
-          <Route path = '/' element = {<Login />} />
+          <Route path="/" element={<Landing/>}/>
+          <Route path = '/login' element = {<Login />} />
           <Route path = '/home' element = {<Home />} />
           <Route
             path="/verify"
@@ -77,7 +77,10 @@ const App = () => {
           <Route path="/emojislider" element={<EmojiSlider/>}/>
           <Route path="/fbc" element={<FeedbackFormContent/>}/>
           <Route path="/feedback" element={<FeedbackForm/>}/>
-        
+          <Route path="/messComplaints" element={<AdminMessComplaints/>}/>
+          <Route path="/adminpage" element={<AdminSide/>}/>
+          
+
         </Routes>
       </BrowserRouter>
     </div>
