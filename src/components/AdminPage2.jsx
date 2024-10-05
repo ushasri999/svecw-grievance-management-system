@@ -11,6 +11,7 @@ import { addDays } from 'date-fns'
 import 'react-date-range/dist/styles.css'
 import 'react-date-range/dist/theme/default.css'
 
+
 const AdminPage2 = () => {
   const [calendarFilter, setCalendarFilter] = useState(false);
   const hostelNames = ["Bhargavi", "Bhuvana", "Neelima", "Nirmala", "Manasa", "Mrudula", "Rohini", "Revathi", "Spoorthi", "Vaidehi", "Gayathri", "Saradha", "Vaishnavi", "Rajeswari"];
