@@ -161,7 +161,7 @@ exports.getAllComplaintsByUser = async (req, res) => {
                 ans.push(cur);
             }));
 
-            console.log("ans = ", ans);
+            //console.log("ans = ", ans);
 
             res.json(ans);
         }
