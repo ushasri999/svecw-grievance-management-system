@@ -61,3 +61,35 @@ exports.getAverageSatisfaction = async (req, res) => {
       res.json({status: 'error', message: "Server error" });
     }
   };
+
+  exports.getAllMessComplaints = async (req, res) => {
+    try {
+        console.log('Fetching all mess complaints');
+
+        const messComplaints = await MessComplaint.find();
+            let ans = [];
+
+            await Promise.all(messComplaints.map(async (complaint) => {
+                const cur = {}
+                
+                // Fetch student and block details using async/await
+                const student = await Student.findOne({_id: complaint.student_id});
+
+                // Populate cur object with fetched details
+                cur.usn = student ? student.usn : null;
+                cur.comment = complaint.comment;
+            
+                // console.log(cur);
+                ans.push(cur);
+            }));
+
+            //console.log("ans = ", ans);
+
+            res.json(ans);
+        
+    
+    } catch (err) {
+        console.error(err);
+        res.json({status: 'error', message: 'Server error'});
+    }
+};
